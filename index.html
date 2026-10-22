@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ORBIT LOG · 我的博客</title>
+<style>
+  :root{
+    --bg:#000; --panel:#0a0a0c; --line:#1d1d22;
+    --text:#f5f5f7; --dim:#9a9aa3; --accent:#fc3d21;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:"Inter",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;
+    background:var(--bg); color:var(--text); line-height:1.75;
+    -webkit-font-smoothing:antialiased; overflow-x:hidden;
+  }
+  /* ---------- nav ---------- */
+  header{
+    position:fixed; inset:0 0 auto 0; z-index:50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 30px;
+    background:rgba(0,0,0,.55); backdrop-filter:blur(14px);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .logo{font-weight:800; letter-spacing:3px; font-size:17px; cursor:pointer; user-select:none}
+  .logo i{display:inline-block; width:9px; height:9px; border-radius:50%;
+    background:var(--accent); margin-right:10px; box-shadow:0 0 12px var(--accent)}
+  nav a{
+    color:var(--dim); text-decoration:none; margin-left:26px; font-size:14px;
+    letter-spacing:1px; transition:color .3s; cursor:pointer;
+  }
+  nav a:hover, nav a.on{color:#fff}
+  /* ---------- views ---------- */
+  .view{display:none}
+  .view.active{display:block; animation:viewIn .7s cubic-bezier(.22,.8,.3,1) both}
+  @keyframes viewIn{from{opacity:0; transform:translateY(26px)} to{opacity:1; transform:none}}
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative; min-height:92vh;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:120px 24px 70px; overflow:hidden;
+  }
+  #stars{position:absolute; inset:0; width:100%; height:100%}
+  .hero .inner{position:relative; z-index:2; max-width:820px}
+  .kicker{
+    color:var(--accent); letter-spacing:5px; font-size:12px; font-weight:700;
+    text-transform:uppercase; margin-bottom:26px;
+    animation:fadeDown 1s .15s both;
+  }
+  .hero h1{
+    font-size:clamp(38px,6.4vw,68px); font-weight:800; line-height:1.18; letter-spacing:1px;
+    animation:fadeDown 1s .3s both;
+  }
+  .hero p{
+    color:var(--dim); font-size:clamp(15px,2vw,18px); margin:26px auto 40px; max-width:560px;
+    animation:fadeDown 1s .45s both;
+  }
+  .cta{
+    display:inline-block; padding:13px 34px; border:1px solid #fff; border-radius:999px;
+    color:#fff; text-decoration:none; font-size:15px; letter-spacing:1px; cursor:pointer;
+    transition:all .35s; animation:fadeDown 1s .6s both; background:transparent;
+  }
+  .cta:hover{background:#fff; color:#000; transform:translateY(-2px)}
+  @keyframes fadeDown{from{opacity:0; transform:translateY(-18px)} to{opacity:1; transform:none}}
+  .scrollhint{
+    position:absolute; bottom:26px; left:50%; transform:translateX(-50%);
+    color:var(--dim); font-size:20px; animation:bob 2.2s ease-in-out infinite; z-index:2;
+  }
+  @keyframes bob{0%,100%{transform:translate(-50%,0)} 50%{transform:translate(-50%,9px)}}
+  /* ---------- sections ---------- */
+  .wrap{max-width:1080px; margin:0 auto; padding:0 24px}
+  section{padding:76px 0}
+  .sec-title{
+    font-size:13px; letter-spacing:4px; color:var(--accent);
+    text-transform:uppercase; font-weight:700; margin-bottom:10px;
+  }
+  .sec-head{font-size:30px; font-weight:800; margin-bottom:38px; letter-spacing:.5px}
+  /* reveal on scroll */
+  .rv{opacity:0; transform:translateY(34px); transition:opacity .9s cubic-bezier(.22,.8,.3,1), transform .9s cubic-bezier(.22,.8,.3,1)}
+  .rv.in{opacity:1; transform:none}
+  /* ---------- post cards ---------- */
+  .grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:22px}
+  .card{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px;
+    overflow:hidden; cursor:pointer;
+    transition:transform .45s cubic-bezier(.22,.8,.3,1), border-color .45s, box-shadow .45s;
+  }
+  .card:hover{transform:translateY(-8px); border-color:#3a3a44; box-shadow:0 24px 50px rgba(0,0,0,.55)}
+  .cover{height:150px; position:relative; overflow:hidden}
+  .cover::after{
+    content:""; position:absolute; inset:0;
+    background:radial-gradient(circle at 78% 22%, rgba(255,255,255,.5) 0 2px, transparent 3px),
+               radial-gradient(circle at 22% 64%, rgba(255,255,255,.35) 0 1.5px, transparent 2.5px),
+               radial-gradient(circle at 55% 38%, rgba(255,255,255,.28) 0 1.5px, transparent 2.5px);
+  }
+  .cover .tag{
+    position:absolute; left:16px; bottom:14px; z-index:2;
+    font-size:11px; letter-spacing:2px; padding:4px 11px; border-radius:999px;
+    background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.25); color:#fff;
+  }
+  .card .body{padding:22px}
+  .date{color:var(--dim); font-size:12.5px; letter-spacing:1px; margin-bottom:8px}
+  .card h3{font-size:19px; line-height:1.45; margin-bottom:9px; font-weight:700}
+  .card p{color:var(--dim); font-size:14.5px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+  .empty{color:var(--dim); text-align:center; padding:50px 0; font-size:15px}
+  /* ---------- about ---------- */
+  .about-box{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:38px;
+    display:flex; gap:28px; align-items:flex-start; flex-wrap:wrap;
+  }
+  .avatar{
+    width:84px; height:84px; border-radius:50%; flex:none;
+    background:radial-gradient(circle at 32% 30%, #3a4a75, #10182e 70%);
+    display:flex; align-items:center; justify-content:center; font-size:34px;
+    border:1px solid #2c3857;
+  }
+  .about-box p{color:var(--dim); max-width:640px; font-size:15.5px}
+  .about-box h3{font-size:21px; margin-bottom:8px}
+  /* ---------- article ---------- */
+  .article{max-width:760px; margin:0 auto; padding:130px 24px 90px}
+  .back{
+    color:var(--dim); background:none; border:none; font-size:15px; cursor:pointer;
+    margin-bottom:34px; letter-spacing:.5px; transition:color .3s; padding:0;
+  }
+  .back:hover{color:#fff}
+  .article h1{font-size:clamp(28px,4.6vw,42px); line-height:1.3; font-weight:800; margin:12px 0 16px}
+  .article .meta{color:var(--dim); font-size:13.5px; letter-spacing:1px; padding-bottom:26px; border-bottom:1px solid var(--line); margin-bottom:34px}
+  .article .content p{margin-bottom:22px; font-size:17px; color:#e9e9ee; animation:fadeDown .8s both}
+  /* ---------- editor ---------- */
+  .editor{max-width:760px; margin:0 auto; padding:130px 24px 90px}
+  .editor h1{font-size:30px; font-weight:800; margin-bottom:8px}
+  .editor .sub{color:var(--dim); font-size:14.5px; margin-bottom:30px}
+  .editor label{display:block; font-size:13px; letter-spacing:2px; color:var(--dim); margin:22px 0 8px; text-transform:uppercase}
+  .editor input[type=text], .editor textarea{
+    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    color:var(--text); font-size:16px; padding:14px 16px; font-family:inherit; outline:none;
+    transition:border-color .3s;
+  }
+  .editor input:focus, .editor textarea:focus{border-color:#4a4a58}
+  .editor textarea{min-height:220px; resize:vertical; line-height:1.8}
+  .row{display:flex; gap:12px; margin-top:26px; flex-wrap:wrap}
+  .btn{
+    padding:12px 28px; border-radius:999px; border:1px solid #fff; background:#fff; color:#000;
+    font-size:15px; cursor:pointer; transition:all .3s; font-family:inherit;
+  }
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:transparent; color:#fff}
+  .btn.ghost:hover{background:rgba(255,255,255,.1)}
+  .mine{margin-top:48px}
+  .mine h2{font-size:19px; margin-bottom:16px}
+  .mine-item{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    padding:14px 18px; border:1px solid var(--line); border-radius:12px; margin-bottom:10px;
+    background:var(--panel);
+  }
+  .mine-item span{font-size:15px}
+  .del{
+    background:none; border:1px solid #3d3d47; color:var(--dim); border-radius:999px;
+    padding:6px 16px; cursor:pointer; font-size:13px; transition:all .3s; flex:none; font-family:inherit;
+  }
+  .del:hover{border-color:var(--accent); color:var(--accent)}
+  .note{color:var(--dim); font-size:13px; margin-top:18px}
+  /* ---------- gear / language ---------- */
+  #gear{
+    position:fixed; right:22px; bottom:22px; z-index:80;
+    width:54px; height:54px; border-radius:50%;
+    background:rgba(18,18,22,.85); border:1px solid #2c2c35; color:#d9d9e0;
+    font-size:24px; cursor:pointer; backdrop-filter:blur(10px);
+    display:flex; align-items:center; justify-content:center;
+    transition:transform .5s cubic-bezier(.22,.8,.3,1), border-color .3s;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+  }
+  #gear:hover{transform:rotate(70deg); border-color:#4a4a58}
+  #langPanel{
+    position:fixed; right:22px; bottom:88px; z-index:80; width:210px;
+    background:rgba(14,14,18,.94); border:1px solid #2c2c35; border-radius:16px;
+    padding:16px; backdrop-filter:blur(14px);
+    opacity:0; transform:translateY(14px) scale(.97); pointer-events:none;
+    transition:all .35s cubic-bezier(.22,.8,.3,1); box-shadow:0 24px 50px rgba(0,0,0,.6);
+  }
+  #langPanel.open{opacity:1; transform:none; pointer-events:auto}
+  #langPanel .lp-title{font-size:12px; letter-spacing:2.5px; color:var(--dim); text-transform:uppercase; margin-bottom:12px}
+  .lang-opt{
+    display:flex; justify-content:space-between; align-items:center; width:100%;
+    background:none; border:none; color:var(--text); font-size:15.5px; padding:10px 8px;
+    cursor:pointer; border-radius:8px; font-family:inherit; text-align:left; transition:background .25s;
+  }
+  .lang-opt:hover{background:rgba(255,255,255,.07)}
+  .lang-opt .ck{color:var(--accent); opacity:0; font-weight:700}
+  .lang-opt.sel .ck{opacity:1}
+  footer{
+    border-top:1px solid var(--line); padding:34px 24px 96px; text-align:center;
+    color:#5c5c66; font-size:13.5px; letter-spacing:.5px;
+  }
+  @media (max-width:640px){
+    header{padding:14px 18px}
+    nav a{margin-left:16px; font-size:13px}
+    section{padding:56px 0}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.01ms!important; transition-duration:.01ms!important}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="showView('home')"><i></i>ORBIT&nbsp;LOG</div>
+  <nav>
+    <a data-i18n="nav_home" onclick="showView('home')">首页</a>
+    <a data-i18n="nav_posts" onclick="goPosts()">博客</a>
+    <a data-i18n="nav_about" onclick="goAbout()">关于</a>
+    <a data-i18n="nav_write" href="/admin/">写博客</a>
+  </nav>
+</header>
+
+<!-- ============ HOME ============ -->
+<div class="view active" id="view-home">
+  <div class="hero">
+    <canvas id="stars"></canvas>
+    <div class="inner">
+      <div class="kicker" data-i18n="kicker">个人博客 · PERSONAL BLOG</div>
+      <h1 data-i18n="hero_title">在星辰之间，记录我的世界</h1>
+      <p data-i18n="hero_sub">这里是我的小站：写学习，写生活，也写那些让我抬头看天的东西。</p>
+      <a class="cta" data-i18n="hero_cta" onclick="goPosts()">开始阅读</a>
+    </div>
+    <div class="scrollhint">⌄</div>
+  </div>
+
+  <div class="wrap">
+    <section id="posts">
+      <div class="sec-title rv" data-i18n="posts_kicker">最新文章</div>
+      <div class="sec-head rv" data-i18n="posts_head">博客</div>
+      <div class="grid" id="postGrid"></div>
+      <div class="empty" id="postEmpty" style="display:none" data-i18n="no_posts">还没有文章，来写第一篇吧。</div>
+    </section>
+
+    <section id="about">
+      <div class="sec-title rv" data-i18n="about_kicker">关于</div>
+      <div class="sec-head rv" data-i18n="about_head">关于博主</div>
+      <div class="about-box rv">
+        <div class="avatar">🚀</div>
+        <div>
+          <h3 data-i18n="about_name">一名高中生</h3>
+          <p data-i18n="about_text">（这里是博主的自我介绍，之后可以自己改：我在哪里上学、喜欢什么、为什么开这个博客。）</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  <footer data-i18n="footer">© 2026 myvpsroot.top · 用好奇心驱动</footer>
+</div>
+
+<!-- ============ ARTICLE ============ -->
+<div class="view" id="view-article">
+  <div class="article">
+    <button class="back" onclick="showView('home')" data-i18n="back">← 返回</button>
+    <div class="date" id="artDate"></div>
+    <h1 id="artTitle"></h1>
+    <div class="meta" id="artMeta"></div>
+    <div class="content" id="artBody"></div>
+  </div>
+  <footer data-i18n="footer">© 2026 myvpsroot.top · 用好奇心驱动</footer>
+</div>
+
+<!-- ============ GEAR / LANGUAGE ============ -->
+<button id="gear" title="Language / 语言" onclick="toggleLang(event)">⚙️</button>
+<div id="langPanel">
+  <div class="lp-title" data-i18n="lang_title">语言 · Language</div>
+  <button class="lang-opt" data-lang="zh" onclick="setLang('zh')">中文 <span class="ck">✓</span></button>
+  <button class="lang-opt" data-lang="en" onclick="setLang('en')">English <span class="ck">✓</span></button>
+  <button class="lang-opt" data-lang="fr" onclick="setLang('fr')">Français <span class="ck">✓</span></button>
+</div>
+
+<script>
+/* ================= i18n ================= */
+const I18N = {
+  zh: {
+    nav_home:"首页", nav_posts:"博客", nav_about:"关于", nav_write:"写博客",
+    kicker:"个人博客 · PERSONAL BLOG",
+    hero_title:"在星辰之间，记录我的世界",
+    hero_sub:"这里是我的小站：写学习，写生活，也写那些让我抬头看天的东西。",
+    hero_cta:"开始阅读",
+    posts_kicker:"最新文章", posts_head:"博客",
+    no_posts:"还没有文章，来写第一篇吧。",
+    about_kicker:"关于", about_head:"关于博主",
+    about_name:"一名高中生",
+    about_text:"（这里是博主的自我介绍，之后可以自己改：我在哪里上学、喜欢什么、为什么开这个博客。）",
+    footer:"© 2026 myvpsroot.top · 用好奇心驱动",
+    back:"← 返回", min_read:"分钟阅读",
+    write_head:"写博客",
+    write_sub:"写完点发布，文章就会出现在首页的博客列表里。",
+    f_title:"标题", f_tag:"标签（可不填）", f_body:"正文（空一行分段）",
+    btn_publish:"发布", btn_cancel:"取消",
+    write_note:"提示：文章保存在这台设备的浏览器里，换设备看不到；想让所有人都能看到，可以把网站接到 GitHub 托管，之后再升级。",
+    mine_head:"全部文章", btn_delete:"删除",
+    lang_title:"语言 · Language",
+    ph_title:"给文章起个标题", ph_tag:"例如：学习 / 生活 / 太空", ph_body:"从这里开始写……",
+    alert_fill:"标题和正文都要填哦。",
+    default_tag:"随笔"
+  },
+  en: {
+    nav_home:"Home", nav_posts:"Blog", nav_about:"About", nav_write:"Write",
+    kicker:"PERSONAL BLOG",
+    hero_title:"Recording My World, Among the Stars",
+    hero_sub:"Welcome to my little station: notes on school, life, and everything that makes me look up at the sky.",
+    hero_cta:"Start Reading",
+    posts_kicker:"Latest Posts", posts_head:"Blog",
+    no_posts:"No posts yet — write the first one.",
+    about_kicker:"About", about_head:"About Me",
+    about_name:"A High-School Student",
+    about_text:"(This is where the blogger introduces himself — where he studies, what he likes, and why he started this blog. He can edit this himself later.)",
+    footer:"© 2026 myvpsroot.top · Driven by curiosity",
+    back:"← Back", min_read:"min read",
+    write_head:"Write a Post",
+    write_sub:"Hit publish and your post appears in the blog list on the home page.",
+    f_title:"Title", f_tag:"Tag (optional)", f_body:"Body (blank line = new paragraph)",
+    btn_publish:"Publish", btn_cancel:"Cancel",
+    write_note:"Note: posts are saved in this device's browser, so they won't show on other devices. To make them visible to everyone, the site can be connected to GitHub hosting later.",
+    mine_head:"All Posts", btn_delete:"Delete",
+    lang_title:"Language",
+    ph_title:"Give your post a title", ph_tag:"e.g. Study / Life / Space", ph_body:"Start writing here…",
+    alert_fill:"Please fill in both the title and the body.",
+    default_tag:"Notes"
+  },
+  fr: {
+    nav_home:"Accueil", nav_posts:"Blog", nav_about:"À propos", nav_write:"Écrire",
+    kicker:"BLOG PERSONNEL",
+    hero_title:"Mon monde, parmi les étoiles",
+    hero_sub:"Bienvenue dans ma petite station : des notes sur l’école, la vie, et tout ce qui me fait lever les yeux vers le ciel.",
+    hero_cta:"Commencer à lire",
+    posts_kicker:"Derniers articles", posts_head:"Blog",
+    no_posts:"Aucun article pour le moment — écris le premier.",
+    about_kicker:"À propos", about_head:"À propos de moi",
+    about_name:"Un lycéen",
+    about_text:"(C’est ici que le blogueur se présente : où il étudie, ce qu’il aime, et pourquoi il a ouvert ce blog. Il pourra le modifier lui-même plus tard.)",
+    footer:"© 2026 myvpsroot.top · Propulsé par la curiosité",
+    back:"← Retour", min_read:"min de lecture",
+    write_head:"Écrire un article",
+    write_sub:"Clique sur publier, et ton article apparaît dans la liste du blog sur la page d’accueil.",
+    f_title:"Titre", f_tag:"Étiquette (facultatif)", f_body:"Texte (une ligne vide = nouveau paragraphe)",
+    btn_publish:"Publier", btn_cancel:"Annuler",
+    write_note:"Remarque : les articles sont enregistrés dans le navigateur de cet appareil, ils ne seront pas visibles ailleurs. Pour les rendre visibles par tous, le site pourra être relié à GitHub plus tard.",
+    mine_head:"Tous les articles", btn_delete:"Supprimer",
+    lang_title:"Langue",
+    ph_title:"Donne un titre à ton article", ph_tag:"ex. Études / Vie / Espace", ph_body:"Commence à écrire ici…",
+    alert_fill:"Il faut remplir le titre et le texte.",
+    default_tag:"Notes"
+  }
+};
+
+/* ================= sample posts (3 languages) ================= */
+const SAMPLES = [
+  {
+    id:"s1", date:"2026-10-22", grad:"linear-gradient(135deg,#0b3d91,#1a1a40 60%,#000)",
+    t:{
+      zh:{tag:"开站", title:"你好，世界：我的博客开张了",
+        ex:"这是我的第一篇博客。以后我会在这里写学习、生活，还有我感兴趣的一切。",
+        body:"爸爸把他的域名给了我，于是我有了这个小站。想想挺酷的：在互联网上，有一块真正属于我自己的地方。\n\n以后我打算在这里写三类东西：学习笔记和心得，读过的好书、看过的好片，还有太空和科技——那些让我忍不住抬头看天的东西。\n\n网站的样子参考了 NASA 官网：黑色、简洁、流畅。我希望来这里的人，也能有一点仰望星空的感觉。欢迎来到我的小站。"},
+      en:{tag:"Launch", title:"Hello, World: My Blog Is Live",
+        ex:"This is my first post. From now on I'll write here about school, life, and everything I find interesting.",
+        body:"My dad gave me his domain name, so now I have this little station of my own. It's kind of cool when you think about it: on the whole internet, there's one small place that truly belongs to me.\n\nI plan to write three kinds of things here: study notes and what I learn from them, good books and films, and space and technology — the things that make me look up at the sky.\n\nThe design is inspired by NASA's website: black, minimal, smooth. I hope anyone who visits gets a little of that looking-up-at-the-stars feeling. Welcome aboard."},
+      fr:{tag:"Ouverture", title:"Bonjour le monde : mon blog est en ligne",
+        ex:"Ceci est mon premier article. Désormais, j’écrirai ici sur l’école, la vie, et tout ce qui m’intéresse.",
+        body:"Mon père m’a donné son nom de domaine, et voilà que j’ai ma propre petite station. En y réfléchissant, c’est plutôt cool : sur tout l’internet, il y a un petit endroit qui m’appartient vraiment.\n\nJe compte écrire trois sortes de choses ici : des notes d’étude et ce que j’en retiens, de bons livres et de bons films, et l’espace et la technologie — tout ce qui me donne envie de lever les yeux vers le ciel.\n\nLe design s’inspire du site de la NASA : noir, simple, fluide. J’espère que chaque visiteur ressentira un peu cette sensation de regarder les étoiles. Bienvenue à bord."}
+    }
+  },
+  {
+    id:"s2", date:"2026-10-20", grad:"linear-gradient(135deg,#10182e,#3a4a75 55%,#0a0a12)",
+    t:{
+      zh:{tag:"太空", title:"仰望星空：为什么我喜欢 NASA",
+        ex:"从阿波罗到阿尔忒弥斯，NASA 最打动我的不是火箭，而是那种“把不可能变可能”的劲头。",
+        body:"第一次认真逛 NASA 官网，是因为一张星云的照片。深蓝的底色、大幅的图片、干净的排版——整个网站像一扇通往太空的窗。\n\n后来我慢慢了解到阿尔忒弥斯计划：人类要重返月球，还要在月球南极建基地。每一步都很难，失败和推迟都是常事，但他们就是一年一年往前推。\n\n我喜欢这种劲头。学习也是一样：题很难，考试会砸，但只要轨道对了，剩下的就是耐心和时间。"},
+      en:{tag:"Space", title:"Looking Up: Why I Like NASA",
+        ex:"From Apollo to Artemis, what moves me about NASA isn't the rockets — it's the habit of turning the impossible into the possible.",
+        body:"The first time I really browsed NASA's website, it was because of a photo of a nebula. Deep blue backgrounds, huge images, clean layout — the whole site felt like a window into space.\n\nLater I learned about the Artemis program: humans are going back to the Moon, and even building a base near its south pole. Every step is hard; failures and delays are normal, yet they keep pushing forward year after year.\n\nI love that attitude. Studying is the same: problems are hard, exams go badly sometimes, but once your orbit is right, all that's left is patience and time."},
+      fr:{tag:"Espace", title:"Lever les yeux : pourquoi j’aime la NASA",
+        ex:"D’Apollo à Artemis, ce qui me touche chez la NASA, ce ne sont pas les fusées, mais cette habitude de rendre l’impossible possible.",
+        body:"La première fois que j’ai vraiment visité le site de la NASA, c’était pour une photo de nébuleuse. Des fonds bleu profond, d’immenses images, une mise en page nette — tout le site ressemblait à une fenêtre sur l’espace.\n\nPlus tard, j’ai découvert le programme Artemis : les humains retournent sur la Lune, et veulent même construire une base près de son pôle Sud. Chaque étape est difficile, les échecs et les retards sont normaux, mais ils avancent année après année.\n\nJ’aime cet état d’esprit. Étudier, c’est pareil : les problèmes sont durs, les examens ratent parfois, mais une fois l’orbite juste, il ne reste que la patience et le temps."}
+    }
+  },
+  {
+    id:"s3", date:"2026-10-15", grad:"linear-gradient(135deg,#1c1c22,#43434f 60%,#0c0c10)",
+    t:{
+      zh:{tag:"生活", title:"高一的第一周",
+        ex:"新学校、新同学、新课表。累是真的累，但好像也没有想象中那么可怕。",
+        body:"开学第一周，最大的感受是：节奏完全不一样了。初中老师会盯着你，高中老师默认你是个大人——作业要自己记，错题要自己理。\n\n新同学来自各个学校，一开始谁也不认识谁，几天下来已经能一起吐槽食堂了。物理比初中难了一个量级，不过推导公式的感觉居然有点爽。\n\n给自己定个小目标：这学期先把节奏稳住，不求一下子多厉害，但求每天都在轨道上。"},
+      en:{tag:"Life", title:"My First Week of High School",
+        ex:"New school, new classmates, new timetable. Exhausting, yes — but not as scary as I imagined.",
+        body:"The biggest feeling of the first week: the rhythm is completely different. In middle school teachers watched over you; in high school they treat you like an adult — you track your own homework and sort out your own mistakes.\n\nMy new classmates came from all kinds of schools. We were strangers at first, but within days we were already complaining about the canteen together. Physics is a whole level harder than before, though deriving formulas feels strangely satisfying.\n\nA small goal for myself this term: keep a steady rhythm. No need to be amazing overnight — just stay on orbit, every day."},
+      fr:{tag:"Vie", title:"Ma première semaine au lycée",
+        ex:"Nouveau lycée, nouveaux camarades, nouvel emploi du temps. Fatigant, oui — mais moins effrayant que prévu.",
+        body:"Le plus grand changement de cette première semaine : le rythme n’a rien à voir. Au collège, les professeurs nous surveillaient ; au lycée, on nous traite comme des adultes — à nous de noter les devoirs et de corriger nos erreurs.\n\nMes nouveaux camarades viennent d’écoles très différentes. Au début, personne ne se connaissait, mais en quelques jours, on se plaignait déjà ensemble de la cantine. La physique est un niveau au-dessus, même si dériver des formules est étrangement satisfaisant.\n\nMon petit objectif ce trimestre : garder un rythme régulier. Pas besoin d’être brillant du jour au lendemain — juste rester en orbite, chaque jour."}
+    }
+  }
+];
+
+/* ================= state ================= */
+let lang = localStorage.getItem("orbit_lang") || "zh";
+let postsData = null; // posts loaded from posts-index.json; falls back to embedded SAMPLES
+
+function pick(v){
+  if (v == null) return "";
+  if (typeof v === "string") return v;
+  return v[lang] || v.zh || v.en || v.fr || "";
+}
+function normalize(p){
+  const t = p.t ? (p.t[lang] || p.t.zh) : null;
+  const title = t ? t.title : pick(p.title);
+  const body  = t ? t.body  : pick(p.body);
+  const tag   = t ? t.tag   : pick(p.tag);
+  const ex    = t ? t.ex    : (body.split("\n").filter(s => s.trim())[0] || "").slice(0, 60);
+  return { id: p.id, date: p.date,
+           grad: p.grad || "linear-gradient(135deg,#23232c,#4a4a58 60%,#101014)",
+           tag: tag || I18N[lang].default_tag, title: title, ex: ex, body: body };
+}
+function currentPosts(){
+  const src = postsData || SAMPLES;
+  return src.map(normalize).sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+}
+function loadPosts(){
+  fetch("posts-index.json", { cache: "no-store" })
+    .then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
+    .then(list => { if (Array.isArray(list) && list.length) postsData = list; renderPosts(); })
+    .catch(() => renderPosts());
+}
+
+/* ================= render ================= */
+function renderPosts(){
+  const grid = document.getElementById("postGrid");
+  if (!grid) return;
+  const posts = currentPosts();
+  grid.innerHTML = "";
+  document.getElementById("postEmpty").style.display = posts.length ? "none" : "block";
+  posts.forEach((p, i) => {
+    const el = document.createElement("article");
+    el.className = "card rv";
+    el.style.transitionDelay = (i % 3) * 0.08 + "s";
+    el.innerHTML = '<div class="cover" style="background:' + p.grad + '"><span class="tag"></span></div>' +
+      '<div class="body"><div class="date"></div><h3></h3><p></p></div>';
+    el.querySelector(".tag").textContent = p.tag;
+    el.querySelector(".date").textContent = p.date;
+    el.querySelector("h3").textContent = p.title;
+    el.querySelector("p").textContent = p.ex;
+    el.onclick = () => openArticle(p.id);
+    grid.appendChild(el);
+  });
+  observeRv();
+}
+function openArticle(id){
+  const p = currentPosts().find(x => x.id === id);
+  if (!p) return;
+  document.getElementById("artDate").textContent = p.date + " · " + p.tag;
+  document.getElementById("artTitle").textContent = p.title;
+  const words = p.body.replace(/\s/g, "").length;
+  document.getElementById("artMeta").textContent = "ORBIT LOG · " + Math.max(1, Math.round(words / 300)) + " " + I18N[lang].min_read;
+  const body = document.getElementById("artBody");
+  body.innerHTML = "";
+  p.body.split(/\n\s*\n|\n/).filter(s => s.trim()).forEach((para, i) => {
+    const el = document.createElement("p");
+    el.textContent = para.trim();
+    el.style.animationDelay = (i * 0.12) + "s";
+    body.appendChild(el);
+  });
+  showView("article");
+  window.scrollTo({ top: 0 });
+}
+
+/* ================= views ================= */
+function showView(name){
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.getElementById("view-" + name).classList.add("active");
+  if (name === "home") renderPosts();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+function goPosts(){ showView("home"); setTimeout(() => document.getElementById("posts").scrollIntoView({ behavior: "smooth" }), 80); }
+function goAbout(){ showView("home"); setTimeout(() => document.getElementById("about").scrollIntoView({ behavior: "smooth" }), 80); }
+
+/* ================= language ================= */
+function applyLang(){
+  const d = I18N[lang];
+  document.querySelectorAll("[data-i18n]").forEach(el => {
+    const k = el.getAttribute("data-i18n");
+    if (d[k]) el.textContent = d[k];
+  });
+  document.querySelectorAll(".lang-opt").forEach(b => b.classList.toggle("sel", b.getAttribute("data-lang") === lang));
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : lang;
+  renderPosts();
+}
+function setLang(l){
+  lang = l;
+  localStorage.setItem("orbit_lang", l);
+  applyLang();
+  document.getElementById("langPanel").classList.remove("open");
+}
+function toggleLang(e){
+  e.stopPropagation();
+  document.getElementById("langPanel").classList.toggle("open");
+}
+document.addEventListener("click", e => {
+  const p = document.getElementById("langPanel");
+  if (p.classList.contains("open") && !p.contains(e.target)) p.classList.remove("open");
+});
+
+/* ================= reveal on scroll ================= */
+let rvObs;
+function observeRv(){
+  if (rvObs) rvObs.disconnect();
+  rvObs = new IntersectionObserver(es => es.forEach(en => {
+    if (en.isIntersecting) { en.target.classList.add("in"); rvObs.unobserve(en.target); }
+  }), { threshold: 0.12 });
+  document.querySelectorAll(".rv").forEach(el => rvObs.observe(el));
+}
+
+/* ================= starfield ================= */
+(function(){
+  const cv = document.getElementById("stars"), ctx = cv.getContext("2d");
+  let W, H, stars = [];
+  function size(){
+    W = cv.width = cv.offsetWidth; H = cv.height = cv.offsetHeight;
+    stars = Array.from({ length: Math.min(160, W / 8) }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      r: Math.random() * 1.4 + 0.3, p: Math.random() * Math.PI * 2,
+      s: 0.008 + Math.random() * 0.02, d: Math.random() * 0.06
+    }));
+  }
+  size(); window.addEventListener("resize", size);
+  (function draw(){
+    ctx.clearRect(0, 0, W, H);
+    stars.forEach(st => {
+      st.p += st.s; st.y += st.d; if (st.y > H) st.y = 0;
+      const a = 0.25 + Math.abs(Math.sin(st.p)) * 0.75;
+      ctx.globalAlpha = a; ctx.fillStyle = "#fff";
+      ctx.beginPath(); ctx.arc(st.x, st.y, st.r, 0, 7); ctx.fill();
+    });
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(draw);
+  })();
+})();
+
+/* ================= init ================= */
+applyLang();
+loadPosts();
+</script>
+</body>
+</html>
