@@ -1,0 +1,20 @@
+{
+  "id": "s1",
+  "date": "2026-10-22",
+  "grad": "linear-gradient(135deg,#0b3d91,#1a1a40 60%,#000)",
+  "tag": {
+    "zh": "开站",
+    "en": "Launch",
+    "fr": "Ouverture"
+  },
+  "title": {
+    "zh": "你好，世界：我的博客开张了",
+    "en": "Hello, World: My Blog Is Live",
+    "fr": "Bonjour le monde : mon blog est en ligne"
+  },
+  "body": {
+    "zh": "爸爸把他的域名给了我，于是我有了这个小站。想想挺酷的：在互联网上，有一块真正属于我自己的地方。\n\n以后我打算在这里写三类东西：学习笔记和心得，读过的好书、看过的好片，还有太空和科技——那些让我忍不住抬头看天的东西。\n\n网站的样子参考了 NASA 官网：黑色、简洁、流畅。我希望来这里的人，也能有一点仰望星空的感觉。欢迎来到我的小站。",
+    "en": "My dad gave me his domain name, so now I have this little station of my own. It's kind of cool when you think about it: on the whole internet, there's one small place that truly belongs to me.\n\nI plan to write three kinds of things here: study notes and what I learn from them, good books and films, and space and technology — the things that make me look up at the sky.\n\nThe design is inspired by NASA's website: black, minimal, smooth. I hope anyone who visits gets a little of that looking-up-at-the-stars feeling. Welcome aboard.",
+    "fr": "Mon père m’a donné son nom de domaine, et voilà que j’ai ma propre petite station. En y réfléchissant, c’est plutôt cool : sur tout l’internet, il y a un petit endroit qui m’appartient vraiment.\n\nJe compte écrire trois sortes de choses ici : des notes d’étude et ce que j’en retiens, de bons livres et de bons films, et l’espace et la technologie — tout ce qui me donne envie de lever les yeux vers le ciel.\n\nLe design s’inspire du site de la NASA : noir, simple, fluide. J’espère que chaque visiteur ressentira un peu cette sensation de regarder les étoiles. Bienvenue à bord."
+  }
+}

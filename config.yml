@@ -1,0 +1,30 @@
+# ORBIT LOG 博客后台配置 (Sveltia CMS)
+backend:
+  name: github
+  repo: Simonlllsoakas/orbit-log
+  branch: main
+
+media_folder: "assets"
+public_folder: "/assets"
+
+collections:
+  - name: posts
+    label: "博客文章"
+    folder: "posts"
+    create: true
+    delete: true
+    format: json
+    extension: json
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{date}} · {{title}}"
+    sortable_fields: ["date", "title"]
+    fields:
+      - { label: "标题", name: "title", widget: "string" }
+      - label: "日期"
+        name: "date"
+        widget: "datetime"
+        format: "YYYY-MM-DD"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+      - { label: "标签", name: "tag", widget: "string", required: false }
+      - { label: "正文（空一行分段）", name: "body", widget: "text" }

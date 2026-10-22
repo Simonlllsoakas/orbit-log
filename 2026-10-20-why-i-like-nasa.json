@@ -1,0 +1,20 @@
+{
+  "id": "s2",
+  "date": "2026-10-20",
+  "grad": "linear-gradient(135deg,#10182e,#3a4a75 55%,#0a0a12)",
+  "tag": {
+    "zh": "太空",
+    "en": "Space",
+    "fr": "Espace"
+  },
+  "title": {
+    "zh": "仰望星空：为什么我喜欢 NASA",
+    "en": "Looking Up: Why I Like NASA",
+    "fr": "Lever les yeux : pourquoi j’aime la NASA"
+  },
+  "body": {
+    "zh": "第一次认真逛 NASA 官网，是因为一张星云的照片。深蓝的底色、大幅的图片、干净的排版——整个网站像一扇通往太空的窗。\n\n后来我慢慢了解到阿尔忒弥斯计划：人类要重返月球，还要在月球南极建基地。每一步都很难，失败和推迟都是常事，但他们就是一年一年往前推。\n\n我喜欢这种劲头。学习也是一样：题很难，考试会砸，但只要轨道对了，剩下的就是耐心和时间。",
+    "en": "The first time I really browsed NASA's website, it was because of a photo of a nebula. Deep blue backgrounds, huge images, clean layout — the whole site felt like a window into space.\n\nLater I learned about the Artemis program: humans are going back to the Moon, and even building a base near its south pole. Every step is hard; failures and delays are normal, yet they keep pushing forward year after year.\n\nI love that attitude. Studying is the same: problems are hard, exams go badly sometimes, but once your orbit is right, all that's left is patience and time.",
+    "fr": "La première fois que j’ai vraiment visité le site de la NASA, c’était pour une photo de nébuleuse. Des fonds bleu profond, d’immenses images, une mise en page nette — tout le site ressemblait à une fenêtre sur l’espace.\n\nPlus tard, j’ai découvert le programme Artemis : les humains retournent sur la Lune, et veulent même construire une base près de son pôle Sud. Chaque étape est difficile, les échecs et les retards sont normaux, mais ils avancent année après année.\n\nJ’aime cet état d’esprit. Étudier, c’est pareil : les problèmes sont durs, les examens ratent parfois, mais une fois l’orbite juste, il ne reste que la patience et le temps."
+  }
+}
