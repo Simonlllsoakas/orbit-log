@@ -127,6 +127,9 @@
   }
   .about-box p{color:var(--dim); max-width:640px; font-size:15.5px}
   .about-box h3{font-size:21px; margin-bottom:8px}
+  .about-box .contact-line{margin-top:14px; font-size:15px}
+  .about-box .contact-line a{color:var(--accent); text-decoration:none}
+  .about-box .contact-line a:hover{text-decoration:underline}
   /* ---------- article ---------- */
   .article{max-width:760px; margin:0 auto; padding:130px 24px 90px}
   .back{
@@ -279,6 +282,7 @@
         <div>
           <h3 data-i18n="about_name">一名高中生</h3>
           <p data-i18n="about_text">（这里是博主的自我介绍，之后可以自己改：我在哪里上学、喜欢什么、为什么开这个博客。）</p>
+          <p class="contact-line">📧 <span data-i18n="contact_label">联系我</span>：<a href="mailto:rielysmn@gmail.com">rielysmn@gmail.com</a></p>
         </div>
       </div>
     </section>
@@ -322,7 +326,7 @@ const I18N = {
     proj_ol_desc:"就是你正在看的这个博客：手写的静态小站，部署在 Cloudflare Pages 上，文章通过 GitHub 管理发布。",
     proj_view:"在 GitHub 查看 →", proj_more:"更多代码在我的 GitHub 主页：",
     no_posts:"还没有文章，来写第一篇吧。",
-    about_kicker:"关于", about_head:"关于博主",
+    about_kicker:"关于", about_head:"关于博主", contact_label:"联系我",
     about_name:"一名高中生",
     about_text:"（这里是博主的自我介绍，之后可以自己改：我在哪里上学、喜欢什么、为什么开这个博客。）",
     footer:"© 2026 myvpsroot.top · 用好奇心驱动",
@@ -350,7 +354,7 @@ const I18N = {
     proj_ol_desc:"The blog you are reading right now: a hand-built static site hosted on Cloudflare Pages, with posts published through GitHub.",
     proj_view:"View on GitHub →", proj_more:"More code on my GitHub profile:",
     no_posts:"No posts yet — write the first one.",
-    about_kicker:"About", about_head:"About Me",
+    about_kicker:"About", about_head:"About Me", contact_label:"Contact me",
     about_name:"A High-School Student",
     about_text:"(This is where the blogger introduces himself — where he studies, what he likes, and why he started this blog. He can edit this himself later.)",
     footer:"© 2026 myvpsroot.top · Driven by curiosity",
@@ -378,7 +382,7 @@ const I18N = {
     proj_ol_desc:"Le blog que vous lisez en ce moment : un petit site statique fait main, hébergé sur Cloudflare Pages, articles publiés via GitHub.",
     proj_view:"Voir sur GitHub →", proj_more:"Plus de code sur mon profil GitHub :",
     no_posts:"Aucun article pour le moment — écris le premier.",
-    about_kicker:"À propos", about_head:"À propos de moi",
+    about_kicker:"À propos", about_head:"À propos de moi", contact_label:"Me contacter",
     about_name:"Un lycéen",
     about_text:"(C’est ici que le blogueur se présente : où il étudie, ce qu’il aime, et pourquoi il a ouvert ce blog. Il pourra le modifier lui-même plus tard.)",
     footer:"© 2026 myvpsroot.top · Propulsé par la curiosité",
