@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>五子棋 · ORBIT LOG 游戏厅</title>
+<style>
+  :root{--bg:#000;--panel:#0a0a0c;--line:#1d1d22;--text:#f5f5f7;--dim:#9a9aa3;--accent:#fc3d21}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:"Inter",-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.75;-webkit-font-smoothing:antialiased}
+  header{position:fixed;inset:0 0 auto 0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 30px;background:rgba(0,0,0,.55);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.06)}
+  .logo{font-weight:800;letter-spacing:3px;font-size:17px;text-decoration:none;color:var(--text)}
+  .logo i{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--accent);margin-right:10px;box-shadow:0 0 12px var(--accent)}
+  nav a{color:var(--dim);text-decoration:none;margin-left:26px;font-size:14px;letter-spacing:1px}
+  nav a:hover{color:#fff}
+  .wrap{max-width:720px;margin:0 auto;padding:110px 24px 80px;text-align:center}
+  h1{font-size:clamp(28px,5vw,40px);font-weight:800;margin-bottom:8px}
+  .sub{color:var(--dim);font-size:15px;margin-bottom:28px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px}
+  .btn{display:inline-block;padding:12px 28px;border-radius:999px;border:1px solid #fff;background:#fff;color:#000;font-size:15px;cursor:pointer;font-family:inherit;margin:6px;transition:transform .25s}
+  .btn:hover{transform:translateY(-2px)}
+  .btn.ghost{background:transparent;color:#fff}
+  .btn.ghost:hover{background:rgba(255,255,255,.1)}
+  .btn:disabled{opacity:.45;cursor:default;transform:none}
+  input[type=text]{width:180px;background:#14141a;border:1px solid var(--line);border-radius:12px;color:var(--text);font-size:20px;letter-spacing:6px;text-align:center;padding:12px;font-family:inherit;outline:none}
+  input[type=text]:focus{border-color:#4a4a58}
+  #status{color:var(--dim);font-size:14.5px;min-height:26px;margin:14px 0 4px}
+  #status.err{color:var(--accent)}
+  #turn{font-size:18px;font-weight:700;margin:6px 0 16px}
+  #codeBox{margin:16px 0}
+  #codeBig{font-size:42px;font-weight:800;letter-spacing:10px}
+  canvas{display:block;margin:0 auto;width:min(560px,92vw);height:auto;background:#14141a;border:1px solid var(--line);border-radius:16px;touch-action:manipulation;cursor:pointer}
+  #banner{font-size:22px;font-weight:800;margin:18px 0 6px;min-height:32px}
+  #banner:empty{display:none}
+  .hidden{display:none}
+  footer{border-top:1px solid var(--line);padding:34px 24px;text-align:center;color:#5c5c66;font-size:13.5px}
+  @media (max-width:640px){header{padding:14px 18px}nav a{margin-left:16px;font-size:13px}}
+</style>
+<script src="common.js"></script>
+</head>
+<body>
+<header>
+  <a class="logo" href="index.html"><i></i>ORBIT&nbsp;LOG</a>
+  <nav><a href="index.html">游戏厅</a><a href="https://myvpsroot.top/">主站</a></nav>
+</header>
+<div class="wrap">
+  <h1>五子棋</h1>
+  <p class="sub">15×15 棋盘，黑棋先行，任意方向连成 5 子获胜。</p>
+
+  <div class="panel" id="setup">
+    <p style="margin-bottom:14px">先选一种玩法：</p>
+    <button class="btn" onclick="chooseOnlineCreate()">联机对战 · 创建房间</button>
+    <button class="btn ghost" onclick="showJoin()">联机对战 · 加入房间</button>
+    <button class="btn ghost" onclick="chooseLocal()">本地双人（同一台电脑）</button>
+    <div id="codeBox" class="hidden">
+      <p style="color:var(--dim);font-size:14px">你的房间码是，把它告诉同学：</p>
+      <div id="codeBig"></div>
+      <button class="btn ghost" onclick="copyCode()">复制房间码</button>
+      <p style="color:var(--dim);font-size:13.5px">等同学加入后棋盘会自动出现。</p>
+    </div>
+    <div id="joinBox" class="hidden" style="margin-top:16px">
+      <p style="color:var(--dim);font-size:14px;margin-bottom:10px">输入同学给你的 6 位房间码：</p>
+      <input type="text" id="codeInput" maxlength="6" inputmode="numeric" placeholder="123456">
+      <div><button class="btn" onclick="chooseOnlineJoin()" style="margin-top:14px">加入</button></div>
+    </div>
+  </div>
+
+  <div id="game" class="hidden">
+    <div id="status"></div>
+    <div id="turn"></div>
+    <canvas id="board" width="620" height="620"></canvas>
+    <div id="banner"></div>
+    <div>
+      <button class="btn hidden" id="rematchBtn" onclick="onRematchClick()">再来一局</button>
+      <button class="btn ghost" onclick="backToSetup()">换个模式</button>
+    </div>
+  </div>
+  <div id="setupStatus" style="color:var(--dim);font-size:14.5px;margin-top:14px"></div>
+</div>
+<footer>© 2026 myvpsroot.top · 游戏厅</footer>
+
+<script>
+(function () {
+  "use strict";
+  var SIZE = 15, PAD = 30, CV = 620;
+  var board = [], turn = 1, over = false, winner = 0, lastMove = null;
+  var mode = null, myPlayer = 0, room = null, rematchState = "none";
+  var cv = document.getElementById("board"), ctx = cv.getContext("2d");
+
+  function label(p) { return p === 1 ? "黑棋" : "白棋"; }
+  function setText(id, t) { document.getElementById(id).textContent = t; }
+  function setStatus(t, err) {
+    var el = document.getElementById("status");
+    el.textContent = t || "";
+    el.className = err ? "err" : "";
+  }
+  function setSetupStatus(t) { setText("setupStatus", t || ""); }
+
+  function newBoard() {
+    board = [];
+    for (var y = 0; y < SIZE; y++) { board.push(new Array(SIZE).fill(0)); }
+  }
+  function draw() {
+    ctx.clearRect(0, 0, CV, CV);
+    ctx.fillStyle = "#14141a"; ctx.fillRect(0, 0, CV, CV);
+    var cell = (CV - PAD * 2) / (SIZE - 1);
+    ctx.strokeStyle = "#3a3a44"; ctx.lineWidth = 1;
+    for (var i = 0; i < SIZE; i++) {
+      ctx.beginPath(); ctx.moveTo(PAD + i * cell, PAD); ctx.lineTo(PAD + i * cell, CV - PAD); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(PAD, PAD + i * cell); ctx.lineTo(CV - PAD, PAD + i * cell); ctx.stroke();
+    }
+    ctx.fillStyle = "#3a3a44";
+    [3, 7, 11].forEach(function (a) { [3, 7, 11].forEach(function (b) {
+      ctx.beginPath(); ctx.arc(PAD + a * cell, PAD + b * cell, 4, 0, 7); ctx.fill();
+    }); });
+    for (var y = 0; y < SIZE; y++) for (var x = 0; x < SIZE; x++) {
+      if (!board[y][x]) continue;
+      var cx = PAD + x * cell, cy = PAD + y * cell, r = cell * 0.46;
+      var g = ctx.createRadialGradient(cx - r * 0.35, cy - r * 0.35, r * 0.1, cx, cy, r);
+      if (board[y][x] === 1) { g.addColorStop(0, "#555"); g.addColorStop(1, "#000"); }
+      else { g.addColorStop(0, "#fff"); g.addColorStop(1, "#bbb"); }
+      ctx.fillStyle = g;
+      ctx.beginPath(); ctx.arc(cx, cy, r, 0, 7); ctx.fill();
+      if (lastMove && lastMove.x === x && lastMove.y === y) {
+        ctx.strokeStyle = "#fc3d21"; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.arc(cx, cy, r + 3, 0, 7); ctx.stroke();
+      }
+    }
+  }
+  function updateTurn() {
+    if (over) { setText("turn", ""); return; }
+    if (mode === "local") setText("turn", "轮到" + label(turn) + "落子");
+    else if (turn === myPlayer) setText("turn", "轮到你了（" + label(myPlayer) + "）");
+    else setText("turn", "等对方落子（" + label(turn) + "）");
+  }
+  function showGame() {
+    document.getElementById("setup").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+  }
+  function resetGame() {
+    newBoard(); turn = 1; over = false; winner = 0; lastMove = null; rematchState = "none";
+    setText("banner", "");
+    var rb = document.getElementById("rematchBtn");
+    rb.classList.add("hidden"); rb.disabled = false; rb.textContent = "再来一局";
+    draw(); updateTurn();
+  }
+  function endGame(msg) {
+    over = true;
+    setText("banner", msg);
+    document.getElementById("rematchBtn").classList.remove("hidden");
+    updateTurn();
+  }
+  function tryPlace(x, y, fromNet) {
+    if (over) return false;
+    if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || board[y][x]) return false;
+    if (mode === "online") {
+      if (!room || !room.connected) return false;
+      if (!fromNet && turn !== myPlayer) return false;
+    }
+    board[y][x] = turn; lastMove = { x: x, y: y };
+    var placed = turn;
+    draw();
+    if (window.GamesLogic.checkGomokuWin(board, x, y, placed)) {
+      winner = placed;
+      endGame(mode === "online" && placed === myPlayer ? "你赢了！" : label(placed) + "获胜！");
+    } else if (board.every(function (row) { return row.every(function (c) { return c !== 0; }); })) {
+      endGame("棋盘下满了，平局！");
+    } else {
+      turn = 3 - turn; updateTurn();
+    }
+    if (!fromNet && mode === "online" && room) room.send({ type: "move", x: x, y: y });
+    return true;
+  }
+
+  function onMessage(data) {
+    if (!data || typeof data !== "object") return;
+    if (data.type === "move") { tryPlace(data.x, data.y, true); }
+    else if (data.type === "rematch") {
+      if (rematchState === "sent") { resetGame(); }
+      else {
+        rematchState = "received";
+        var rb = document.getElementById("rematchBtn");
+        rb.classList.remove("hidden"); rb.textContent = "对方想再来一局，接受";
+        setStatus("对方想再来一局，点“接受”就重新开始。");
+      }
+    } else if (data.type === "rematch-accept") { resetGame(); }
+  }
+  function netCallbacks() {
+    return {
+      onMessage: onMessage,
+      onDisconnected: function () {
+        setStatus("对手已断开连接。请重新创建房间，或改用本地双人。", true);
+      },
+      onError: function (msg) { setSetupStatus(msg); setStatus(msg, true); }
+    };
+  }
+  window.chooseLocal = function () {
+    if (room) { room.close(); room = null; }
+    mode = "local"; myPlayer = 0;
+    setSetupStatus(""); showGame(); resetGame();
+    setStatus("本地双人：两个人轮流落子，黑棋先行。");
+  };
+  window.chooseOnlineCreate = function () {
+    setSetupStatus("正在创建房间…");
+    var cb = netCallbacks();
+    cb.onCode = function (code) {
+      document.getElementById("codeBox").classList.remove("hidden");
+      setText("codeBig", code);
+      setSetupStatus("房间已创建，等同学输入这串码加入。");
+    };
+    cb.onConnected = function () {
+      mode = "online"; myPlayer = 1;
+      showGame(); resetGame();
+      setStatus("对手已加入！你是黑棋，先行。");
+    };
+    room = window.GamesNet.createRoom("gomoku", cb);
+  };
+  window.showJoin = function () {
+    document.getElementById("joinBox").classList.remove("hidden");
+    document.getElementById("codeInput").focus();
+  };
+  window.chooseOnlineJoin = function () {
+    var code = (document.getElementById("codeInput").value || "").replace(/\D/g, "");
+    if (code.length !== 6) { setSetupStatus("房间码是 6 位数字，请检查后再试。"); return; }
+    setSetupStatus("正在连接房间…");
+    var cb = netCallbacks();
+    cb.onConnected = function () {
+      mode = "online"; myPlayer = 2;
+      showGame(); resetGame();
+      setStatus("已连上！你是白棋，等黑棋先行。");
+    };
+    room = window.GamesNet.joinRoom("gomoku", code, cb);
+  };
+  window.copyCode = function () {
+    var code = document.getElementById("codeBig").textContent.trim();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(code).then(function () { setSetupStatus("房间码已复制，去发给同学吧。"); });
+    } else { setSetupStatus("房间码是 " + code + "，手动发给同学吧。"); }
+  };
+  window.onRematchClick = function () {
+    if (mode === "local") { resetGame(); return; }
+    if (!room || !room.connected) { setStatus("还没连上对手，不能再来一局。", true); return; }
+    if (rematchState === "received") {
+      room.send({ type: "rematch-accept" }); resetGame();
+    } else if (rematchState === "none") {
+      room.send({ type: "rematch" }); rematchState = "sent";
+      var rb = document.getElementById("rematchBtn");
+      rb.textContent = "等待对方确认…"; rb.disabled = true;
+    }
+  };
+  window.backToSetup = function () {
+    if (room) { room.close(); room = null; }
+    mode = null; myPlayer = 0;
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("setup").classList.remove("hidden");
+    document.getElementById("codeBox").classList.add("hidden");
+    document.getElementById("joinBox").classList.add("hidden");
+    setSetupStatus("");
+  };
+  cv.addEventListener("click", function (ev) {
+    var rect = cv.getBoundingClientRect();
+    var scale = CV / rect.width;
+    var px = (ev.clientX - rect.left) * scale, py = (ev.clientY - rect.top) * scale;
+    var cell = (CV - PAD * 2) / (SIZE - 1);
+    var x = Math.round((px - PAD) / cell), y = Math.round((py - PAD) / cell);
+    tryPlace(x, y, false);
+  });
+  newBoard(); draw();
+})();
+</script>
+</body>
+</html>
